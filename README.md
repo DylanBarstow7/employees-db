@@ -1,32 +1,115 @@
-# Node Starter
+# test_db
+A sample database with an integrated test suite, used to test your applications and database servers
 
-## TLDR
+This repository was migrated from [Launchpad](https://launchpad.net/test-db).
 
-Use of this starter template assumes that you have a 'complete dev environment' setup - a terminal, Node, VS Code, at least. If not, you may want to [start here.](https://www.notion.so/codefinity/Setting-up-a-Local-Dev-Environment-for-JS-02a4e9f4a30043d3a8e7d109be3448f4)
+See usage in the [MySQL docs](https://dev.mysql.com/doc/employee/en/index.html)
 
-1. Click that big green button to start using it.
-2. `clone` your new repo from your GitHub to your local computer
-3. `cd` into the `clone`d repo and enter: `npm i`.
-4. `npm start`
 
-## Some of What's Included
+## Where it comes from
 
-- [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
-- Various VS Code 'settings' and 'extensions.' Look in the bottom right when you open this up in VS Code to install them.
+The original data was created by Fusheng Wang and Carlo Zaniolo at 
+Siemens Corporate Research. The data is in XML format.
+http://timecenter.cs.aau.dk/software.htm
 
-## How To Use
+Giuseppe Maxia made the relational schema and Patrick Crews exported
+the data in relational format.
 
-Run `npm i` to get all the things installed.
+The database contains about 300,000 employee records with 2.8 million 
+salary entries. The export data is 167 MB, which is not huge, but
+heavy enough to be non-trivial for testing.
 
-`npm start` will watch the `app` directory for any changes using `nodemon`
+The data was generated, and as such there are inconsistencies and subtle
+problems. Rather than removing them, we decided to leave the contents
+untouched, and use these issues as data cleaning exercises.
 
----
+## Prerequisites
 
-**Don't 4get to ~~drink your Ovaltime~~ update `"name"`, `"description"`, `"author"`, etc. in 'package.json' when using this for your stuff.**
+You need a MySQL database server (5.0+) and run the commands below through a 
+user that has the following privileges:
 
-## 🎶
+    SELECT, INSERT, UPDATE, DELETE, 
+    CREATE, DROP, RELOAD, REFERENCES, 
+    INDEX, ALTER, SHOW DATABASES, 
+    CREATE TEMPORARY TABLES, 
+    LOCK TABLES, EXECUTE, CREATE VIEW
 
-- For fonts, I set ['Victor Mono'](https://rubjo.github.io/victor-mono/) by default. You might also install: ['Inconsolata'](https://fonts.google.com/specimen/Inconsolata) or ['Source Code Pro'](https://fonts.google.com/specimen/Source+Code+Pro) - or completely change that in [.vscode/settings.json](/.vscode/settings.json), _if you know what you are doing! ⚠️_
-- As you get more comfortable, of course you can modify all the things as you C fit.
-- For an icon theme, look up: "pkief.material-icon-theme",
-- You should certainly accept and install the extensions if prompted to do so in the **bottom right of your screen.** Also, make sure that you enable ESLint in the bottom right. It's sometimes disabled for faux security 🔒 reasons.
+## Installation:
+
+1. Download the repository
+2. Change directory to the repository
+
+Then run
+
+    mysql < employees.sql
+
+
+If you want to install with two large partitioned tables, run
+
+    mysql < employees_partitioned.sql
+
+
+## Testing the installation
+
+After installing, you can run one of the following
+
+    mysql -t < test_employees_md5.sql
+    # OR
+    mysql -t < test_employees_sha.sql
+
+For example:
+
+    mysql  -t < test_employees_md5.sql
+    +----------------------+
+    | INFO                 |
+    +----------------------+
+    | TESTING INSTALLATION |
+    +----------------------+
+    +--------------+------------------+----------------------------------+
+    | table_name   | expected_records | expected_crc                     |
+    +--------------+------------------+----------------------------------+
+    | employees    |           300024 | 4ec56ab5ba37218d187cf6ab09ce1aa1 |
+    | departments  |                9 | d1af5e170d2d1591d776d5638d71fc5f |
+    | dept_manager |               24 | 8720e2f0853ac9096b689c14664f847e |
+    | dept_emp     |           331603 | ccf6fe516f990bdaa49713fc478701b7 |
+    | titles       |           443308 | bfa016c472df68e70a03facafa1bc0a8 |
+    | salaries     |          2844047 | fd220654e95aea1b169624ffe3fca934 |
+    +--------------+------------------+----------------------------------+
+    +--------------+------------------+----------------------------------+
+    | table_name   | found_records    | found_crc                        |
+    +--------------+------------------+----------------------------------+
+    | employees    |           300024 | 4ec56ab5ba37218d187cf6ab09ce1aa1 |
+    | departments  |                9 | d1af5e170d2d1591d776d5638d71fc5f |
+    | dept_manager |               24 | 8720e2f0853ac9096b689c14664f847e |
+    | dept_emp     |           331603 | ccf6fe516f990bdaa49713fc478701b7 |
+    | titles       |           443308 | bfa016c472df68e70a03facafa1bc0a8 |
+    | salaries     |          2844047 | fd220654e95aea1b169624ffe3fca934 |
+    +--------------+------------------+----------------------------------+
+    +--------------+---------------+-----------+
+    | table_name   | records_match | crc_match |
+    +--------------+---------------+-----------+
+    | employees    | OK            | ok        |
+    | departments  | OK            | ok        |
+    | dept_manager | OK            | ok        |
+    | dept_emp     | OK            | ok        |
+    | titles       | OK            | ok        |
+    | salaries     | OK            | ok        |
+    +--------------+---------------+-----------+
+
+
+## DISCLAIMER
+
+To the best of my knowledge, this data is fabricated and
+it does not correspond to real people. 
+Any similarity to existing people is purely coincidental.
+
+
+## LICENSE
+This work is licensed under the 
+Creative Commons Attribution-Share Alike 3.0 Unported License. 
+To view a copy of this license, visit 
+http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to 
+Creative Commons, 171 Second Street, Suite 300, San Francisco, 
+California, 94105, USA.
+
+
